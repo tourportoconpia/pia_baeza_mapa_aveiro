@@ -18,7 +18,7 @@ export function Cabecalho() {
           <FotoPia tamanho={36} className="size-8 shrink-0 rounded-full text-xs" />
           <span className="flex min-w-0 flex-col leading-tight">
             <span className="truncate font-semibold">{CONTACTO.nome}</span>
-            <span className="truncate text-xs text-muted-foreground">Habitação · Aveiro</span>
+            <span className="truncate text-xs text-muted-foreground">Mudda · Habitação · Aveiro</span>
           </span>
         </a>
         <nav aria-label="Secções" className="flex shrink-0 items-center gap-2">

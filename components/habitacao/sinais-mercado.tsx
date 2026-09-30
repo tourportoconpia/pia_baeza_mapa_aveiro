@@ -1,9 +1,9 @@
 import { CODIGO_OVAR, CONCELHOS, type Concelho } from '@/data/ine-habitacao-aveiro'
-import { fmtNum, varHom, varTrim } from '@/lib/habitacao'
+import { fmtNum, fmtPct, varHom, varTrim } from '@/lib/habitacao'
 import { cn } from '@/lib/utils'
 import { Variacao } from './variacao'
 
-type Linha = { concelho: Concelho; principal: string; variacao: number | null }
+type Linha = { concelho: Concelho; principal: string; variacao: number | null; nota?: string }
 
 function CartaoSinal({ titulo, leitura, linhas }: { titulo: string; leitura: string; linhas: Linha[] }) {
   return (
@@ -13,7 +13,7 @@ function CartaoSinal({ titulo, leitura, linhas }: { titulo: string; leitura: str
         <p className="text-sm leading-relaxed text-muted-foreground text-pretty">{leitura}</p>
       </header>
       <ol className="flex flex-col divide-y text-sm">
-        {linhas.map(({ concelho, principal, variacao }) => (
+        {linhas.map(({ concelho, principal, variacao, nota }) => (
           <li
             key={concelho.codigo}
             className={cn(
@@ -22,9 +22,12 @@ function CartaoSinal({ titulo, leitura, linhas }: { titulo: string; leitura: str
             )}
           >
             <span className="min-w-0 max-w-full truncate">{concelho.nome}</span>
-            <span className="flex items-center gap-2 sm:gap-3 whitespace-nowrap">
-              <span className="font-mono text-xs text-muted-foreground tabular-nums sm:text-sm">{principal}</span>
-              <Variacao valor={variacao} className="min-w-14 justify-end text-right" />
+            <span className="flex flex-col items-end gap-0.5 whitespace-nowrap">
+              <span className="flex items-center gap-2 sm:gap-3">
+                <span className="font-mono text-xs text-muted-foreground tabular-nums sm:text-sm">{principal}</span>
+                <Variacao valor={variacao} className="min-w-14 justify-end text-right" />
+              </span>
+              {nota && <span className="font-mono text-[11px] text-muted-foreground">{nota}</span>}
             </span>
           </li>
         ))}
@@ -50,7 +53,8 @@ export function SinaisMercado() {
     .map((c) => ({
       concelho: c,
       principal: `vendas ${fmtNum(c.dados['2025T4'].vendas)}→${fmtNum(c.dados['2026T1'].vendas)}`,
-      variacao: varTrim(c),
+      variacao: varTrim(c, 'vendas'),
+      nota: `preço ${fmtPct(varTrim(c))}`,
     }))
 
   const procura = CONCELHOS.filter((c) => (varHom(c, 'vendas') ?? 0) > 0)
@@ -66,12 +70,12 @@ export function SinaisMercado() {
     <div className="grid gap-4 md:grid-cols-2">
       <CartaoSinal
         titulo="Maior valorização em 1 ano"
-        leitura="Proprietários destes concelhos viram o valor das casas subir mais. Bom argumento para contactar quem pondera vender."
+        leitura="Proprietários destes concelhos viram o valor das casas subir mais."
         linhas={valorizacao}
       />
       <CartaoSinal
         titulo="Preço a subir, vendas a descer"
-        leitura="Do 4.º T 2025 para o 1.º T 2026 o preço subiu mas houve menos vendas. Pode indicar falta de casas à venda: foco em angariar."
+        leitura="Do 4.º T 2025 para o 1.º T 2026 o preço subiu mas houve menos vendas. Pode indicar falta de casas à venda."
         linhas={escassez}
       />
       <CartaoSinal
